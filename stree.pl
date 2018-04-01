@@ -37,17 +37,6 @@ append([H|X], Y, [H|Z]) :- append(X, Y, Z).
 
 %findall(Tree, stree([a-b, b-c, b-d, c-d], Tree), Res).
 
-% Check if element is allready in the list
-% allready_there(X, [X|_]).
-% allready_there(X, [_|T]) :- allready_there(X, T).
-
-% Find all spanning trees
-find_all_trees([], []).
-find_all_trees(Graph, Trees) :- 
-    findall(Tree, stree(Graph, Tree), DupTrees),
-    set(DupTrees, Trees).
-
-
 % Check if 2 graphs are the same
 are_same([], _).
 are_same([A-B|T], G) :- 
@@ -70,7 +59,11 @@ set([H|T],Out) :-
     set(T,Out),
     !.
 
-
+% Find all spanning trees
+find_all_trees([], []).
+find_all_trees(Graph, Trees) :- 
+    findall(Tree, stree(Graph, Tree), DupTrees),
+    set(DupTrees, Trees).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
