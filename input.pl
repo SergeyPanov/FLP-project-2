@@ -10,12 +10,6 @@ preklad: swipl -q -g start -o flp16-log -c input2.pl
 
 
 
-
-
-
-
-
-
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
     get_char(C),
@@ -59,12 +53,6 @@ start :-
 
 %"Compilation":
 %    swipl -q -g start -o jmeno -c input2.pl
-
-
-
-
-
-
 
 
 

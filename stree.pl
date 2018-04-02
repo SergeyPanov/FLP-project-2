@@ -66,43 +66,43 @@ find_all_trees(Graph, Trees) :-
     set(DupTrees, Trees).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%muz(jan).
-men(pavel).
-men(robert).
-men(tomas).
-men(petr).
 
-women(marie).
-women(jana).
-women(linda).
-women(eva).
+%Reads line from stdin, terminates on LF or EOF.
+read_line(L,C) :-
+    get_char(C),
+    (isEOFEOL(C), L = [], !;
+        read_line(LL,_),% atom_codes(C,[Cd]),
+        [C|LL] = L).
 
-father(tomas,jan).
-father(jan,robert).
-father(jan,jana).
-father(pavel,linda).
-father(pavel,eva).
+%Tests if character is EOF or LF.
+isEOFEOL(C) :-
+    C == end_of_file;
+    (char_code(C,Code), Code==10).
 
-mother(marie,robert).
-mother(linda,jana).
-mother(eva,petr).
-
-parent(X, Y) :-
-    father(X, Y);
-    mother(X, Y).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-list_inc([], []).
-list_inc([H|T], Res) :- 
-    list_inc(T, R),
-    append([H1], R, Res),
-    H1 is H+1.
+read_lines(Ls) :-
+    read_line(L,C),
+    ( C == end_of_file, Ls = [] ;
+      read_lines(LLs), Ls = [L|LLs]
+    ).
 
 
 
-show_records([]).
-show_records([A|B]) :-
-  format('~w-~w~n',A),
-  show_records(B).
+% rozdeli radek na podseznamy
+split_line([],[[]]) :- !.
+split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
+split_line([32|T], [[]|S1]) :- !, split_line(T,S1).    % aby to fungovalo i s retezcem na miste seznamu
+split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]). % G je prvni seznam ze seznamu seznamu G|S1
+
+% vstupem je seznam radku (kazdy radek je seznam znaku)
+split_lines([],[]).
+split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
+
+
+
+
+start :-
+        prompt(_, ''),
+        read_lines(LL),
+        split_lines(LL,S),
+        write(S),
+        halt.
