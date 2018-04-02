@@ -67,6 +67,12 @@ find_all_trees(Graph, Trees) :-
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+make_edge([], []).
+make_edge([ [[A], [B]] | T], Res) :- 
+    make_edge(T, R),
+    append(R, [A-B], Res).
+
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
     get_char(C),
@@ -104,5 +110,6 @@ start :-
         prompt(_, ''),
         read_lines(LL),
         split_lines(LL,S),
-        write(S),
+        make_edge(S, Res)
+        write(Res),
         halt.
