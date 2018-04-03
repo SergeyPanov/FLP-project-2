@@ -68,10 +68,17 @@ find_all_trees(Graph, Trees) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-make_edge([], []).
-make_edge([ [[A], [B]] | T], Res) :- 
-    make_edge(T, R),
+% Create adge from list. [[A], [B]] -> [A-B]
+make_adge([], []).
+make_adge([ [[A], [B]] | T], Res) :- 
+    make_adge(T, R),
     append(R, [A-B], Res).
+
+% Print all trees
+show_all([]).
+show_all([H|T]) :-
+    show_all(T),
+    format('~w~n', H).
 
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
@@ -105,12 +112,11 @@ split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
 
 
 
-
 start :-
         prompt(_, ''),
         read_lines(LL),
         split_lines(LL,S),
         make_edge(S, Graph),
         find_all_trees(Graph, Trees),
-        write(Trees),
+        show_all(Trees),
         halt.
