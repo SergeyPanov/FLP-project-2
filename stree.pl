@@ -101,8 +101,7 @@ pair(Nodes1, Nodes2, Pairs):-
 % Check if graph is connected
 is_connected(Nodes, Edges) :-
     pair(Nodes, Nodes, Pairs),
-    check_path(Pairs, Edges),
-    write(Pairs).
+    check_path(Pairs, Edges).
 check_path([], _).
 check_path([[A, B]|T], G) :-
     path(A, B, G, _),
