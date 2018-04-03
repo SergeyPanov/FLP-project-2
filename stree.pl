@@ -84,8 +84,8 @@ display_tree([H|T]) :-
 show_trees([]).
 show_trees([H|T]) :-
     show_trees(T),
-    format("\n"),
-    display_tree(H).
+    display_tree(H),
+    format("\n").
 
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
@@ -125,5 +125,5 @@ start :-
         split_lines(LL,S),
         make_adge(S, Graph),
         find_all_trees(Graph, Trees),
-        show_all(Trees),
+        show_trees(Trees),
         halt.
