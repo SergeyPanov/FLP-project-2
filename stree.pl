@@ -116,7 +116,7 @@ start :-
         prompt(_, ''),
         read_lines(LL),
         split_lines(LL,S),
-        make_edge(S, Graph),
+        make_adge(S, Graph),
         find_all_trees(Graph, Trees),
         show_all(Trees),
         halt.
