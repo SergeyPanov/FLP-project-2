@@ -59,6 +59,9 @@ set([H|T],Out) :-
     set(T,Out),
     !.
 
+
+
+
 % Find all spanning trees
 find_all_trees([], []).
 find_all_trees(Graph, Trees) :- 
@@ -66,12 +69,50 @@ find_all_trees(Graph, Trees) :-
     set(DupTrees, Trees).
 
 
+% [ [[a], [b]], [[b], [c]], [[c], [d]] ]
+% Make flat list
+flatten2([], []) :- !.
+flatten2([L|Ls], FlatL) :-
+    !,
+    flatten2(L, NewL),
+    flatten2(Ls, NewLs),
+    append(NewL, NewLs, FlatL).
+flatten2(L, [L]).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get all unique nodes
+get_nodes([], []).
+get_nodes(List, Res) :-
+    flatten2(List, R),
+    list_to_set(R, Res).
+
+% Find path between 2 nodes
+path(A, B, G, Path) :-
+       travel(A, [B], G, Path).
+travel(A, [A|P1], _, [A|P1]):-!.
+travel(A, [Y | P1], G, Path) :- 
+    adjacent(X, Y, G),
+    \+ member(X, P1),
+    travel(A, [X, Y | P1], G, Path), !.
+
+% Create bijection between nodes
+pair(Nodes1, Nodes2, Pairs):-
+  findall([A,B], (member(A, Nodes1), member(B, Nodes2)), Pairs).
+
+% Check if graph is connected
+is_connected(Nodes, Edges) :-
+    pair(Nodes, Nodes, Pairs),
+    check_path(Pairs, Edges),
+    write(Pairs).
+check_path([], _).
+check_path([[A, B]|T], G) :-
+    path(A, B, G, _),
+    check_path(T, G).
+    
+
 % Create adge from list. [[A], [B]] -> [A-B]
-make_adge([], []).
-make_adge([ [[A], [B]] | T], Res) :- 
-    make_adge(T, R),
+make_edge([], []).
+make_edge([ [[A], [B]] | T], Res) :- 
+    make_edge(T, R),
     append(R, [A-B], Res).
 
 % Print all agdes of tree
@@ -87,6 +128,9 @@ show_trees([H|T]) :-
     display_tree(H),
     format("\n").
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
     get_char(C),
@@ -106,8 +150,6 @@ read_lines(Ls) :-
     ).
 
 
-
-% rozdeli radek na podseznamy
 split_line([],[[]]) :- !.
 split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
 split_line([32|T], [[]|S1]) :- !, split_line(T,S1).    % aby to fungovalo i s retezcem na miste seznamu
@@ -123,7 +165,9 @@ start :-
         prompt(_, ''),
         read_lines(LL),
         split_lines(LL,S),
-        make_adge(S, Graph),
+        make_edge(S, Graph),
+        get_nodes(S, Nodes),
+        is_connected(Nodes, Graph),
         find_all_trees(Graph, Trees),
         show_trees(Trees),
         halt.
