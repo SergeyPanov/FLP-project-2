@@ -1,9 +1,3 @@
-% Graph = [a-b, b-c, b-d, c-d]
-% [a-b, b-c, c-d]
-% [a-b, b-d, d-c]
-% [a-b, b-d, b-c]
-
-
 % Main function, create single spanning tree
 stree(Graph, Tree) :- 
     member(Edge, Graph),
