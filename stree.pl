@@ -74,11 +74,18 @@ make_adge([ [[A], [B]] | T], Res) :-
     make_adge(T, R),
     append(R, [A-B], Res).
 
+% Print all agdes of tree
+display_tree([]).
+display_tree([H|T]) :-
+    display_tree(T),
+    format('~w ', H).
+    
 % Print all trees
-show_all([]).
-show_all([H|T]) :-
-    show_all(T),
-    format('~w~n', H).
+show_trees([]).
+show_trees([H|T]) :-
+    show_trees(T),
+    format("\n"),
+    display_tree(H).
 
 %Reads line from stdin, terminates on LF or EOF.
 read_line(L,C) :-
