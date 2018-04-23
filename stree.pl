@@ -16,7 +16,7 @@ addedge(Tree, [A-B|Tree], Graph) :-
     node(A, Tree),  % Only if node A is part of Graph
     \+ node(B, Tree).   % And node B is note part of Graph
 
-% Check if exists edge between nodes Node1 and Node2
+% Check if edge exists between nodes Node1 and Node2
 adjacent(Node1, Node2, Graph) :-
     member(Node1-Node2, Graph);
     member(Node2-Node1, Graph).
@@ -29,7 +29,6 @@ node(Node, Graph) :-
 append([], Y, Y).
 append([H|X], Y, [H|Z]) :- append(X, Y, Z).
 
-%findall(Tree, stree([a-b, b-c, b-d, c-d], Tree), Res).
 
 % Check if 2 graphs are the same
 are_same([], _).
@@ -54,9 +53,7 @@ set([H|T],Out) :-
     !.
 
 
-
-
-% Find all spanning trees
+% Find all unique spanning trees
 find_all_trees([], []).
 find_all_trees(Graph, Trees) :- 
     findall(Tree, stree(Graph, Tree), DupTrees),
@@ -94,15 +91,15 @@ pair(Nodes1, Nodes2, Pairs):-
 
 % Check if graph is connected
 is_connected(Nodes, Edges) :-
-    pair(Nodes, Nodes, Pairs),
-    check_path(Pairs, Edges).
+    pair(Nodes, Nodes, Pairs),  % Construct all pairs of nodes
+    check_path(Pairs, Edges).   % Try to find path between pair of nodes
 check_path([], _).
 check_path([[A, B]|T], G) :-
     path(A, B, G, _),
     check_path(T, G).
     
 
-% Create adge from list. [[A], [B]] -> [A-B]
+% Create adge from list of nodes. [[A], [B]] -> [A-B]
 make_edge([], []).
 make_edge([ [[A], [B]] | T], Res) :- 
     make_edge(T, R),
@@ -160,7 +157,7 @@ start :-
         split_lines(LL,S),
         make_edge(S, Graph),
         get_nodes(S, Nodes),
-        is_connected(Nodes, Graph),
-        find_all_trees(Graph, Trees),
-        show_trees(Trees),
+        !,is_connected(Nodes, Graph),   % Check if graph is connected
+        find_all_trees(Graph, Trees),   % Find all trees
+        show_trees(Trees),  % Display found trees
         halt.
