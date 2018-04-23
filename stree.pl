@@ -1,9 +1,3 @@
-% Graph = [a-b, b-c, b-d, c-d]
-% [a-b, b-c, c-d]
-% [a-b, b-d, d-c]
-% [a-b, b-d, b-c]
-
-
 % Main function, create single spanning tree
 stree(Graph, Tree) :- 
     member(Edge, Graph),
@@ -22,7 +16,7 @@ addedge(Tree, [A-B|Tree], Graph) :-
     node(A, Tree),  % Only if node A is part of Graph
     \+ node(B, Tree).   % And node B is note part of Graph
 
-% Check if exists edge between nodes Node1 and Node2
+% Check if edge exists between nodes Node1 and Node2
 adjacent(Node1, Node2, Graph) :-
     member(Node1-Node2, Graph);
     member(Node2-Node1, Graph).
@@ -35,7 +29,6 @@ node(Node, Graph) :-
 append([], Y, Y).
 append([H|X], Y, [H|Z]) :- append(X, Y, Z).
 
-%findall(Tree, stree([a-b, b-c, b-d, c-d], Tree), Res).
 
 % Check if 2 graphs are the same
 are_same([], _).
@@ -59,50 +52,112 @@ set([H|T],Out) :-
     set(T,Out),
     !.
 
-% Find all spanning trees
+
+% Find all unique spanning trees
 find_all_trees([], []).
 find_all_trees(Graph, Trees) :- 
     findall(Tree, stree(Graph, Tree), DupTrees),
     set(DupTrees, Trees).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%muz(jan).
-men(pavel).
-men(robert).
-men(tomas).
-men(petr).
+% [ [[a], [b]], [[b], [c]], [[c], [d]] ]
+% Make flat list
+flatten2([], []) :- !.
+flatten2([L|Ls], FlatL) :-
+    !,
+    flatten2(L, NewL),
+    flatten2(Ls, NewLs),
+    append(NewL, NewLs, FlatL).
+flatten2(L, [L]).
 
-women(marie).
-women(jana).
-women(linda).
-women(eva).
+% Get all unique nodes
+get_nodes([], []).
+get_nodes(List, Res) :-
+    flatten2(List, R),
+    list_to_set(R, Res).
 
-father(tomas,jan).
-father(jan,robert).
-father(jan,jana).
-father(pavel,linda).
-father(pavel,eva).
+% Find path between 2 nodes
+path(A, B, G, Path) :-
+       travel(A, [B], G, Path).
+travel(A, [A|P1], _, [A|P1]):-!.
+travel(A, [Y | P1], G, Path) :- 
+    adjacent(X, Y, G),
+    \+ member(X, P1),
+    travel(A, [X, Y | P1], G, Path), !.
 
-mother(marie,robert).
-mother(linda,jana).
-mother(eva,petr).
+% Create bijection between nodes
+pair(Nodes1, Nodes2, Pairs):-
+  findall([A,B], (member(A, Nodes1), member(B, Nodes2)), Pairs).
 
-parent(X, Y) :-
-    father(X, Y);
-    mother(X, Y).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check if graph is connected
+is_connected(Nodes, Edges) :-
+    pair(Nodes, Nodes, Pairs),  % Construct all pairs of nodes
+    check_path(Pairs, Edges).   % Try to find path between pair of nodes
+check_path([], _).
+check_path([[A, B]|T], G) :-
+    path(A, B, G, _),
+    check_path(T, G).
+    
+
+% Create adge from list of nodes. [[A], [B]] -> [A-B]
+make_edge([], []).
+make_edge([ [[A], [B]] | T], Res) :- 
+    make_edge(T, R),
+    append(R, [A-B], Res).
+
+% Print all agdes of tree
+display_tree([]).
+display_tree([H|T]) :-
+    display_tree(T),
+    format('~w ', H).
+    
+% Print all trees
+show_trees([]).
+show_trees([H|T]) :-
+    show_trees(T),
+    display_tree(H),
+    format("\n").
 
 
-list_inc([], []).
-list_inc([H|T], Res) :- 
-    list_inc(T, R),
-    append([H1], R, Res),
-    H1 is H+1.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Reads line from stdin, terminates on LF or EOF.
+read_line(L,C) :-
+    get_char(C),
+    (isEOFEOL(C), L = [], !;
+        read_line(LL,_),% atom_codes(C,[Cd]),
+        [C|LL] = L).
+
+%Tests if character is EOF or LF.
+isEOFEOL(C) :-
+    C == end_of_file;
+    (char_code(C,Code), Code==10).
+
+read_lines(Ls) :-
+    read_line(L,C),
+    ( C == end_of_file, Ls = [] ;
+      read_lines(LLs), Ls = [L|LLs]
+    ).
+
+
+split_line([],[[]]) :- !.
+split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
+split_line([32|T], [[]|S1]) :- !, split_line(T,S1).    % aby to fungovalo i s retezcem na miste seznamu
+split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]). % G je prvni seznam ze seznamu seznamu G|S1
+
+% vstupem je seznam radku (kazdy radek je seznam znaku)
+split_lines([],[]).
+split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
 
 
 
-show_records([]).
-show_records([A|B]) :-
-  format('~w-~w~n',A),
-  show_records(B).
+start :-
+        prompt(_, ''),
+        read_lines(LL),
+        split_lines(LL,S),
+        make_edge(S, Graph),
+        get_nodes(S, Nodes),
+        !,is_connected(Nodes, Graph),   % Check if graph is connected
+        find_all_trees(Graph, Trees),   % Find all trees
+        show_trees(Trees),  % Display found trees
+        halt.
